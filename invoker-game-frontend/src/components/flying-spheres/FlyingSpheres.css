@@ -1,0 +1,32 @@
+.sphere-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	pointer-events: none; /* So that it doesn't block interactions */
+	z-index: -1; /* Put it behind other content */
+	overflow: hidden;
+}
+
+.sphere {
+	position: absolute;
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.8);
+	background-size: contain;
+	animation: fall linear infinite;
+	visibility: hidden; /* Initially hide the spheres */
+}
+
+/* Animation to simulate falling rain with a random horizontal drift */
+@keyframes fall {
+	0% {
+		transform: translateY(-100px) translateX(0); /* Start well above the screen */
+		visibility: visible; /* Make them visible as they begin to fall */
+	}
+	100% {
+		transform: translateY(100vh) translateX(calc(30vw - 15vw)); /* Fall to the bottom with horizontal drift */
+	}
+}
