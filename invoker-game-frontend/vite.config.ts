@@ -7,5 +7,6 @@ export default defineConfig({
 	server: {
 		port: 5173,
 		host: '0.0.0.0', // чтобы приложение было доступно извне
+		https: false, // отключить HTTPS
 	},
 })
