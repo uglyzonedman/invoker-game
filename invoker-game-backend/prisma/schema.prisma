@@ -14,12 +14,27 @@ datasource db {
 }
 
 model User {
-  id         Int     @id @default(autoincrement())
-  createdAt  String  @map("created_at")
-  updatedAt  String  @map("updated_at")
-  login      String  @unique
-  password   String
-  avatarPath String? @default("")
+  id           Int            @id @default(autoincrement())
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @default(now()) @map("updated_at")
+  login        String         @unique
+  password     String
+  avatarPath   String?        @default("not_photo.webp")
+  UserKeyboard UserKeyboard[]
 
   @@map("user")
+}
+
+model UserKeyboard {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  key       String   @default("")
+  skill     String   @default("")
+  photo     String   @default("")
+  textColor String   @map("text_color")
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("user_keyboard")
 }

@@ -8,23 +8,14 @@ const InvokerMastery = () => {
 	const levels = [
 		{
 			id: 1,
-			title: 'Noob',
-			description:
-				'Доступны подсказки. Максимальное количество кнопок - 3. Есть порядок кнопок ',
-			imgSrc: noob,
-			isUnlocked: true,
-			link: 'noob',
-		},
-		{
-			id: 2,
 			title: 'Easy',
 			description: 'Доступны подсказки. Максимальное количество кнопок - 3.',
 			imgSrc: easy,
-			isUnlocked: false,
-			link: '',
+			isUnlocked: true,
+			link: 'easy',
 		},
 		{
-			id: 3,
+			id: 2,
 			title: 'Medium',
 			description: 'Подсказок нет. Максимальное количество кнопок - 3.',
 			imgSrc: medium,
@@ -32,7 +23,7 @@ const InvokerMastery = () => {
 			link: '',
 		},
 		{
-			id: 4,
+			id: 3,
 			title: 'Absolute',
 			description: 'Абсолютный контроль. Доминируйте в любой ситуации.',
 			imgSrc: hight,

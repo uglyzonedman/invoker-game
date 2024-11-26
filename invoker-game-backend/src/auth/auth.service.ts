@@ -13,48 +13,113 @@ export class AuthService {
   private readonly saltRounds = 10;
 
   generateAccessToken(userId: number, login: string) {
-    return this.jwtService.sign({ userId, login }, { expiresIn: '1h' });
+    const data = {
+      id: userId,
+      login,
+    };
+    return this.jwtService.sign(data, {
+      expiresIn: '1h',
+      secret: 'misha-krasava-oscar-chyrka',
+    });
   }
-
   generateRefreshToken(userId: number, login: string) {
-    return this.jwtService.sign({ userId, login }, { expiresIn: '7d' });
+    const data = {
+      id: userId,
+      login,
+    };
+    return this.jwtService.sign(data, {
+      expiresIn: '7d',
+      secret: 'misha-krasava-oscar-chyrka',
+    });
   }
 
   async register(dto: AuthDto) {
-    const checkUser = await this.prisma.user.findFirst({
+    const existingUser = await this.prisma.user.findFirst({
       where: {
         login: dto.login,
       },
     });
 
-    if (checkUser) {
-      return new BadRequestException('Test');
+    if (existingUser) {
+      throw new BadRequestException(
+        'Пользователь с таким логином уже существует',
+      );
     }
 
-    let hashPassword: any;
-
-    if (dto.password) {
-      if (dto.password.length < 8) {
-        return new BadRequestException('Оскар - иди нахуй');
-      } else {
-        hashPassword = await bcrypt.hash(dto.password, this.saltRounds);
-      }
+    if (!dto.password || dto.password.length < 8) {
+      throw new BadRequestException(
+        'Пароль должен содержать минимум 8 символов',
+      );
     }
 
-    const newUser = await this.prisma.user.create({
-      data: {
-        login: dto.login,
-        password: await hashPassword,
-        createdAt: String(new Date()),
-        updatedAt: String(new Date()),
-      },
-    });
+    const hashPassword = await bcrypt.hash(dto.password, this.saltRounds);
 
-    if (newUser) {
+    try {
+      const newUser = await this.prisma.user.create({
+        data: {
+          login: dto.login,
+          password: hashPassword,
+        },
+      });
+
+      const keyboards = [
+        {
+          key: 'q',
+          skill: 'quas',
+          textColor: '#72c3fc',
+          photo: 'invoker_quas.png',
+        },
+        {
+          key: 'w',
+          skill: 'wex',
+          textColor: '#ce72fc',
+          photo: 'invoker_wex.png',
+        },
+        {
+          key: 'e',
+          skill: 'exort',
+          textColor: '#fcca72',
+          photo: 'invoker_exort.png',
+        },
+        {
+          key: 'd',
+          skill: 'cast1',
+          textColor: '#fff',
+          photo: '',
+        },
+        {
+          key: 'f',
+          skill: 'cast2',
+          textColor: '#fff',
+          photo: '',
+        },
+        {
+          key: 'r',
+          skill: 'invoke',
+          textColor: '#fff',
+          photo: 'invoker_invoke.png',
+        },
+      ];
+      await Promise.all(
+        keyboards.map((keyboard) =>
+          this.prisma.userKeyboard.create({
+            data: {
+              key: keyboard.key,
+              skill: keyboard.skill,
+              userId: newUser.id,
+              textColor: keyboard.textColor,
+              photo: keyboard.photo,
+            },
+          }),
+        ),
+      );
+
       return {
-        message: 'Ползователь успешно создан',
+        message: 'Пользователь успешно создан',
         data: newUser,
       };
+    } catch (error) {
+      throw new BadRequestException('Ошибка при создании пользователя', error);
     }
   }
 
@@ -64,17 +129,18 @@ export class AuthService {
         login: dto.login,
       },
     });
+
     if (!currentUser) {
-      return new BadRequestException('Такого логина нет');
+      throw new BadRequestException('Пользователь с таким логином не найден');
     }
 
-    const checkPassword = await bcrypt.compare(
+    const isPasswordValid = await bcrypt.compare(
       dto.password,
       currentUser.password,
     );
 
-    if (!checkPassword) {
-      return new BadRequestException('Пароли не совпадают');
+    if (!isPasswordValid) {
+      throw new BadRequestException('Неверный пароль');
     }
 
     const accessToken = this.generateAccessToken(
@@ -87,8 +153,11 @@ export class AuthService {
     );
 
     return {
-      message: 'Успешно',
-      user: currentUser,
+      message: 'Вход выполнен успешно',
+      user: {
+        id: currentUser.id,
+        login: currentUser.login,
+      },
       tokens: {
         accessToken,
         refreshToken,

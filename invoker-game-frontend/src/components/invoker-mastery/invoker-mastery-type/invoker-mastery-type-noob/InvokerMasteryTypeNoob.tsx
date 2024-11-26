@@ -11,17 +11,22 @@ import { customKeys } from '../../../../consts/custom-keys'
 import { invokerSkills } from '../../../../consts/invoker-skills'
 import { IInvokerSkill } from '../../../../types'
 import noob from '../../../../assets/noob.gif'
-const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
+import { useProfile } from '../../../../hooks/useUser'
+
+const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [currentStep, setCurrentStep] = useState(0)
 	const [currentTimer, setCurrentTimer] = useState(0)
 	const [startGame, setStartGame] = useState(false)
-	const [keys, setKeys] = useState<string[]>([])
+	const [keys, setKeys] = useState<any[]>([])
 	const [countKeys, setCountKeys] = useState<number>(0)
 	const [result, setResult] = useState(0)
 	const [incorrectKeyCount, setIncorrectKeyCount] = useState(0)
+	const { profile } = useProfile()
 
 	const findPhotoSkill = (index: number) => {
-		return customKeys.find(item => item.key == keys[index])?.photo
+		return profile?.UserKeyboard.find(
+			(item: any) => item.skill == keys[index]?.skill
+		)?.photo
 	}
 
 	const arraySkills = [...invokerSkills]
@@ -64,12 +69,23 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 		const handleKeyDown = (event: KeyboardEvent): void => {
 			event.preventDefault()
 			const pressedKey = event.key.toLowerCase()
-			if (!customKeys.some(item => item.key === pressedKey)) {
-				setIncorrectKeyCount(prev => prev + 1)
-				return
+
+			const keyExists = profile?.UserKeyboard.some(
+				(item: { key: string; skill: string }) => item.key === pressedKey
+			)
+
+			if (keyExists) {
+				setCountKeys(prev => prev + 1)
+
+				const currentKey = profile?.UserKeyboard.find(
+					(item: { key: string; skill: string }) => item.key === pressedKey
+				)
+
+				if (currentKey) {
+					console.log(`Key pressed: ${currentKey.skill}`)
+					setKeys(prev => [...prev, currentKey])
+				}
 			}
-			setCountKeys(prev => prev + 1)
-			setKeys(prevKeys => [...prevKeys, pressedKey])
 		}
 
 		window.addEventListener('keydown', handleKeyDown)
@@ -77,24 +93,17 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown)
 		}
-	}, [setCountKeys, setKeys, setIncorrectKeyCount])
+	}, [profile, setCountKeys, setKeys])
 
 	useEffect(() => {
-		const expectedKeys = randomArraySkills[currentStep]?.keys.join('')
-		if (keys.length === 3) {
-			if (
-				keys
-					.join('')
-					.split('')
-					.sort((a, b) => b.localeCompare(a))
-					.join('') ===
-				expectedKeys
-					.split('')
-					.sort((a, b) => b.localeCompare(a))
-					.join('')
-			) {
-				setResult(currentTimer + incorrectKeyCount * 2)
+		const expectedKeys = randomArraySkills[currentStep]?.keys
 
+		if (expectedKeys && keys.length === 3) {
+			if (
+				keys.every(
+					(item: any, index: number) => item.skill === expectedKeys[index]
+				)
+			) {
 				setTimeout(() => {
 					if (currentStep < randomArraySkills?.length - 1) {
 						setKeys([])
@@ -105,7 +114,6 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 				}, 100)
 			} else {
 				setIncorrectKeyCount(prev => prev + 1)
-
 				setTimeout(() => {
 					setKeys([])
 				}, 100)
@@ -113,7 +121,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 		} else if (keys.length > 3) {
 			setKeys([])
 		}
-	}, [keys])
+	}, [keys, currentStep, randomArraySkills])
 
 	useEffect(() => {
 		let start: number | null = null
@@ -158,7 +166,8 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 	})
 
 	const findKeyColor = (key: string) => {
-		return customKeys.find(item => item.key === key)?.textColor
+		return profile?.UserKeyboard?.find((item: any) => item.skill === key)
+			?.textColor
 	}
 
 	return (
@@ -169,9 +178,68 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 				</h2>
 				<p className='text-lg text-gray-300 text-center mb-4'>
 					Режим игры —{' '}
-					{type === 'noob' && <span className='text-green-400'>Легчайший</span>}
+					{type === 'easy' && <span className='text-green-400'>Легчайший</span>}
 				</p>
-				{!startGame && result !== 0 && (
+
+				{!startGame && !result && (
+					<>
+						<img className='mx-auto mb-4' src={noob} width={250} height={250} />
+						<div className='text-center'>
+							<button
+								onClick={() => start()}
+								className='bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-purple-400'
+							>
+								Начать игру (Нажмите ENTER)
+							</button>
+						</div>
+					</>
+				)}
+
+				{startGame && (
+					<>
+						<div className='mt-6 mb-8'>
+							<img
+								className='mx-auto rounded-lg shadow-lg border-4 border-purple-600'
+								src={randomArraySkills[currentStep].image}
+								alt='Skill'
+							/>
+						</div>
+						<div className='flex justify-between max-w-[320px] mt-6 mx-auto gap-4'>
+							{Array.from({ length: 3 }).map((_, index) => (
+								<div
+									key={index}
+									className='rounded-full border-4 border-solid border-indigo-500 flex items-center justify-center text-white text-lg font-bold w-24 h-24 bg-gradient-to-r from-purple-600 to-indigo-700 shadow-lg transform transition-transform duration-300 hover:scale-110 hover:shadow-2xl'
+								>
+									{findPhotoSkill(index) == undefined ? (
+										''
+									) : (
+										<img
+											className='rounded-full w-[21] h-[21]'
+											src={`${
+												import.meta.env.VITE_BASE_URL
+											}/user/get-photo-skill/${findPhotoSkill(index)}`}
+										/>
+									)}
+								</div>
+							))}
+						</div>
+					</>
+				)}
+				<div className='flex justify-between border-[1px] border-solid border-white w-full px-4 py-2 mt-5'>
+					<div className='text-base font-medium text-white'>
+						<span className='font-bold'>Кнопок нажато:</span> {countKeys}
+					</div>
+					<div className='text-base font-medium text-white'>
+						<span className='font-bold'>Этап:</span> {currentStep}
+					</div>
+					<div className='text-base font-medium text-white'>
+						<span className='font-bold'>Таймер:</span> {currentTimer} c
+					</div>
+					<div className='text-base font-medium text-white'>
+						<span className='font-bold'>Ошибок:</span> {incorrectKeyCount}
+					</div>
+				</div>
+				{/* {!startGame && result !== 0 && (
 					<div className='text-center'>
 						<p className='text-2xl font-semibold text-white mb-4'>
 							Результат: <span className='text-yellow-400'>{result}</span>
@@ -185,19 +253,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 						</button>
 					</div>
 				)}
-				{!startGame && !result && (
-					<img className='mx-auto mb-4' src={noob} width={250} height={250} />
-				)}
-				{!startGame && !result && (
-					<div className='text-center'>
-						<button
-							onClick={() => start()}
-							className='bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-purple-400'
-						>
-							Начать игру (Нажмите ENTER)
-						</button>
-					</div>
-				)}
+				
 				{startGame && (
 					<>
 						<div className='mt-6 mb-8'>
@@ -214,34 +270,26 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 									key={index}
 									className='rounded-full border-4 border-solid border-indigo-500 flex items-center justify-center text-white text-lg font-bold w-24 h-24 bg-gradient-to-r from-purple-600 to-indigo-700 shadow-lg transform transition-transform duration-300 hover:scale-110 hover:shadow-2xl'
 								>
-									<img
-										className='rounded-full w-[21] h-[21]'
-										src={findPhotoSkill(index)}
-									/>
+									{findPhotoSkill(index) == undefined ? (
+										''
+									) : (
+										<img
+											className='rounded-full w-[21] h-[21]'
+											src={`${
+												import.meta.env.VITE_BASE_URL
+											}/user/get-photo-skill/${findPhotoSkill(index)}`}
+										/>
+									)}
 								</div>
 							))}
 						</div>
 
-						{/* Статистика в строку */}
-						<div className='flex justify-between border-[1px] border-solid border-white w-full px-4 py-2 mt-5'>
-							<div className='text-base font-medium text-white'>
-								<span className='font-bold'>Кнопок нажато:</span> {countKeys}
-							</div>
-							<div className='text-base font-medium text-white'>
-								<span className='font-bold'>Этап:</span> {currentStep}
-							</div>
-							<div className='text-base font-medium text-white'>
-								<span className='font-bold'>Таймер:</span> {currentTimer} c
-							</div>
-							<div className='text-base font-medium text-white'>
-								<span className='font-bold'>Ошибок:</span> {incorrectKeyCount}
-							</div>
-						</div>
+					
 					</>
-				)}
+				)} */}
 			</div>
 
-			<div className='max-w-[780px] w-full mx-auto p-6 bg-gray-800 rounded-lg shadow-xl mt-5'>
+			{/* <div className='max-w-[780px] w-full mx-auto p-6 bg-gray-800 rounded-lg shadow-xl mt-5'>
 				<h2 className='text-lg font-bold text-white text-center mb-3'>
 					Способности
 				</h2>
@@ -266,14 +314,14 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'noob' }) => {
 										className='text-base font-bold mx-1'
 										key={key}
 									>
-										{key.toUpperCase()}
+										{key[0].toUpperCase()}
 									</span>
 								))}
 							</div>
 						</div>
 					))}
 				</div>
-			</div>
+			</div> */}
 		</div>
 	)
 }

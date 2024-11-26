@@ -1,20 +1,9 @@
 import React, { useState } from 'react'
-import tech from '../../assets/techies-минер.gif'
-import HomeControlls from './home-controlls/HomeControlls'
-import HomeGames from './home-games/HomeGames'
-import HomeSkills from './home-skills/HomeSkills'
 
 import inkoverImg from '../../assets/invoker-dota-2.gif'
 import { Link } from 'react-router-dom'
-const Home: React.FC = () => {
-	const [currentStep, setCurrentStep] = useState(0)
-	const [currentTimer, setCurrentTimer] = useState(0)
-	const [startGame, setStartGame] = useState(false)
-	const [keys, setKeys] = useState<string[]>([])
-	const [countKeys, setCountKeys] = useState<number>(0)
-	const [result, setResult] = useState(0)
-	const [incorrectKeyCount, setIncorrectKeyCount] = useState(0)
 
+const Home: React.FC = () => {
 	return (
 		<div className='max-w-[1280px]  w-full mt-2 mx-auto'>
 			<div className='flex mt-10'>

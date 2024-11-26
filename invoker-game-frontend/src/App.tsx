@@ -4,6 +4,7 @@ import Home from './components/home/Home'
 import Auth from './components/auth/Auth'
 import InvokerMastery from './components/invoker-mastery/InvokerMastery'
 import InvokerMasteryType from './components/invoker-mastery/invoker-mastery-type/InvokerMasteryType'
+import Profile from './components/profile/Profile'
 
 function App() {
 	return (
@@ -17,8 +18,8 @@ function App() {
 						path='invoker-mastery/:type'
 						element={<InvokerMasteryType />}
 					/>
+					<Route path='profile' element={<Profile />} />
 				</Route>
-				q
 			</Routes>
 		</Router>
 	)

@@ -5,7 +5,7 @@ const InvokerMasteryType = () => {
 	const { type } = useParams()
 	const renderCurrentGame = () => {
 		switch (type) {
-			case 'noob':
+			case 'easy':
 				return <InvokerMasteryTypeNoob type={type} />
 
 			default:

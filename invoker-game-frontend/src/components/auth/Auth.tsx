@@ -8,19 +8,17 @@ import { useUser } from '../../hooks/useUser'
 const Auth = () => {
 	const { type } = useParams()
 	const loginFunc = useAuthStore(state => state.login)
-	const isAuthenticated = useAuthStore(state => state.isAuthenticated) // Подключаем статус авторизации
-	const error = useAuthStore(state => state.error) // Подключаем возможную ошибку
+	const error = useAuthStore(state => state.error)
 	const navigate = useNavigate()
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
 	const { mutate: registerFunc } = useRegister({ login, password })
 	const user = useUser()
 	useEffect(() => {
-		// Если авторизация успешна, редиректим
 		if (user) {
 			navigate('/')
 		}
-	}, [user, navigate]) // Следим за изменением isAuthenticated
+	}, [user, navigate])
 
 	return (
 		<div className='flex items-center justify-center '>
@@ -28,7 +26,7 @@ const Auth = () => {
 				onSubmit={async e => {
 					e.preventDefault()
 					if (type === 'login') {
-						await loginFunc({ login, password }) // Ждем выполнения функции
+						await loginFunc({ login, password })
 					} else if (type === 'register') {
 						registerFunc()
 					}
@@ -44,6 +42,7 @@ const Auth = () => {
 						<label className='text-gray-500 block mt-3'>
 							Логин
 							<input
+								autoComplete='off'
 								onChange={e => setLogin(e.target.value)}
 								type='text'
 								placeholder='Введите логин'
@@ -55,6 +54,7 @@ const Auth = () => {
 						<label className='text-gray-500 block mt-3'>
 							Пароль
 							<input
+								autoComplete='off'
 								onChange={e => setPassword(e.target.value)}
 								type='password'
 								placeholder='Введите пароль'
@@ -63,7 +63,6 @@ const Auth = () => {
 						</label>
 					</div>
 				</div>
-				{/* Сообщение об ошибке */}
 				{error && <p className='text-red-500 mt-4 text-center'>{error}</p>}
 				{type === 'register' && (
 					<Link className='text-white text-lg mt-2' to='/auth/login'>

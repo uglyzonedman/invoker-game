@@ -24,7 +24,7 @@ interface LoginParams {
 
 // Тип состояния хранилища
 interface AuthState {
-	user: User | null // Информация о пользователе
+	user: any | null // Информация о пользователе
 	token: Tokens | null // Токены
 	isAuthenticated: boolean // Статус авторизации
 	error: string | null // Ошибка авторизации
@@ -37,7 +37,7 @@ interface AuthState {
 
 // Создание хранилища с типизацией
 const useAuthStore = create<AuthState>(set => ({
-	user: null,
+	user: localStorage.getItem('user') || null,
 	token: null,
 	isAuthenticated: false,
 	error: null,
