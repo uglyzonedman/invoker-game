@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import LayoutHeader from './layout-header/LayoutHeader'
 import LayoutFooter from './layout-footer/LayoutFooter'
-import { Bounce, ToastContainer } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const Layout = () => {

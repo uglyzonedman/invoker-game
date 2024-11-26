@@ -18,7 +18,7 @@ export class AuthService {
       login,
     };
     return this.jwtService.sign(data, {
-      expiresIn: '1h',
+      expiresIn: '7d',
       secret: 'misha-krasava-oscar-chyrka',
     });
   }

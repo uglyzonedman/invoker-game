@@ -41,7 +41,7 @@ const LayoutHeader = () => {
 								/>
 								<Link
 									className='text-white font-medium text-xl hover:text-gold transition-all duration-300 flex items-center'
-									to='/'
+									to='/leaderboard'
 								>
 									Таблица лидеров
 								</Link>

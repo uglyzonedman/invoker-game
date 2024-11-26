@@ -7,22 +7,22 @@ import straj from './../../../../assets/straj.png'
 import sisyan from './../../../../assets/sisyan.png'
 import titan from './../../../../assets/titan.png'
 import vlastik from './../../../../assets/vlastik.png'
-import { customKeys } from '../../../../consts/custom-keys'
 import { invokerSkills } from '../../../../consts/invoker-skills'
 import { IInvokerSkill } from '../../../../types'
 import noob from '../../../../assets/noob.gif'
 import { useProfile } from '../../../../hooks/useUser'
+import { useCreateResult } from '../../../../hooks/useResult'
 
 const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [currentStep, setCurrentStep] = useState(0)
-	const [currentTimer, setCurrentTimer] = useState(0)
+	const [currentTimer, setCurrentTimer] = useState<any>(0)
 	const [startGame, setStartGame] = useState(false)
 	const [keys, setKeys] = useState<any[]>([])
 	const [countKeys, setCountKeys] = useState<number>(0)
 	const [result, setResult] = useState(0)
 	const [incorrectKeyCount, setIncorrectKeyCount] = useState(0)
 	const { profile } = useProfile()
-
+	const { createResultFunc } = useCreateResult()
 	const findPhotoSkill = (index: number) => {
 		return profile?.UserKeyboard.find(
 			(item: any) => item.skill == keys[index]?.skill
@@ -99,11 +99,19 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 		const expectedKeys = randomArraySkills[currentStep]?.keys
 
 		if (expectedKeys && keys.length === 3) {
+			let sortedKeys = [...keys].sort((a, b) => a.skill.localeCompare(b.skill))
+			let sortedExpected = [...expectedKeys].sort((a, b) => a.localeCompare(b))
 			if (
-				keys.every(
-					(item: any, index: number) => item.skill === expectedKeys[index]
+				sortedKeys.every(
+					(item: any, index: number) => item.skill === sortedExpected[index]
 				)
 			) {
+				const computedResult = currentTimer + incorrectKeyCount * 2
+				setResult(parseFloat(Number(computedResult).toFixed(2)))
+
+				if (currentStep === randomArraySkills.length - 1) {
+					createResultFunc({ gameMode: 'easy', result: computedResult })
+				}
 				setTimeout(() => {
 					if (currentStep < randomArraySkills?.length - 1) {
 						setKeys([])
@@ -132,15 +140,15 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 			if (start === null) {
 				start = now
 			}
-			const elapsed = Math.floor((now - start) / 1000)
-			setCurrentTimer(elapsed)
+			const elapsed = (now - start) / 1000 // Переводим в секунды
+			setCurrentTimer(elapsed.toFixed(1)) // Оставляем одну цифру после запятой
 			animationFrame = requestAnimationFrame(updateTimer)
 		}
 
 		if (startGame) {
 			animationFrame = requestAnimationFrame(updateTimer)
 		} else {
-			setCurrentTimer(0)
+			setCurrentTimer(0) // Сбрасываем таймер при завершении игры
 		}
 
 		return () => {
@@ -225,6 +233,20 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 						</div>
 					</>
 				)}
+				{!startGame && result !== 0 && (
+					<div className='text-center'>
+						<p className='text-2xl font-semibold text-white mb-4'>
+							Результат: <span className='text-yellow-400'>{result}</span>
+						</p>
+						<ResultImage result={result} />
+						<button
+							onClick={() => start()}
+							className='bg-gradient-to-r from-green-500 to-blue-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-green-400 mt-6'
+						>
+							Еще раз? (Нажмите ENTER)
+						</button>
+					</div>
+				)}
 				<div className='flex justify-between border-[1px] border-solid border-white w-full px-4 py-2 mt-5'>
 					<div className='text-base font-medium text-white'>
 						<span className='font-bold'>Кнопок нажато:</span> {countKeys}
@@ -239,57 +261,8 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 						<span className='font-bold'>Ошибок:</span> {incorrectKeyCount}
 					</div>
 				</div>
-				{/* {!startGame && result !== 0 && (
-					<div className='text-center'>
-						<p className='text-2xl font-semibold text-white mb-4'>
-							Результат: <span className='text-yellow-400'>{result}</span>
-						</p>
-						<ResultImage result={result} />
-						<button
-							onClick={() => start()}
-							className='bg-gradient-to-r from-green-500 to-blue-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-green-400 mt-6'
-						>
-							Еще раз? (Нажмите ENTER)
-						</button>
-					</div>
-				)}
-				
-				{startGame && (
-					<>
-						<div className='mt-6 mb-8'>
-							<img
-								className='mx-auto rounded-lg shadow-lg border-4 border-purple-600'
-								src={randomArraySkills[currentStep].image}
-								alt='Skill'
-							/>
-						</div>
-
-						<div className='flex justify-between max-w-[320px] mt-6 mx-auto gap-4'>
-							{Array.from({ length: 3 }).map((_, index) => (
-								<div
-									key={index}
-									className='rounded-full border-4 border-solid border-indigo-500 flex items-center justify-center text-white text-lg font-bold w-24 h-24 bg-gradient-to-r from-purple-600 to-indigo-700 shadow-lg transform transition-transform duration-300 hover:scale-110 hover:shadow-2xl'
-								>
-									{findPhotoSkill(index) == undefined ? (
-										''
-									) : (
-										<img
-											className='rounded-full w-[21] h-[21]'
-											src={`${
-												import.meta.env.VITE_BASE_URL
-											}/user/get-photo-skill/${findPhotoSkill(index)}`}
-										/>
-									)}
-								</div>
-							))}
-						</div>
-
-					
-					</>
-				)} */}
 			</div>
-
-			{/* <div className='max-w-[780px] w-full mx-auto p-6 bg-gray-800 rounded-lg shadow-xl mt-5'>
+			<div className='max-w-[780px] w-full mx-auto p-6 bg-gray-800 rounded-lg shadow-xl mt-5'>
 				<h2 className='text-lg font-bold text-white text-center mb-3'>
 					Способности
 				</h2>
@@ -321,7 +294,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 						</div>
 					))}
 				</div>
-			</div> */}
+			</div>
 		</div>
 	)
 }

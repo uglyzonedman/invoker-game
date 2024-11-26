@@ -12,7 +12,8 @@ const EditKeyboardAbilitiesModal = ({
 
 	const handleChange = (index: any, event: any) => {
 		const newKeyboards = [...updatedKeyboard]
-		newKeyboards[index].key = event.target.value
+		// Limit the input to a single character
+		newKeyboards[index].key = event.target.value.slice(0, 1)
 		setUpdatedKeyboard(newKeyboards)
 	}
 

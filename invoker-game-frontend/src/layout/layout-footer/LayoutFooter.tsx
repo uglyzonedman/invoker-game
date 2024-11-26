@@ -1,5 +1,3 @@
-import React from 'react'
-
 const LayoutFooter = () => {
 	return (
 		<footer className='bg-gray-900 text-white py-4 mt-auto'>

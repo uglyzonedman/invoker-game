@@ -5,6 +5,7 @@ import Auth from './components/auth/Auth'
 import InvokerMastery from './components/invoker-mastery/InvokerMastery'
 import InvokerMasteryType from './components/invoker-mastery/invoker-mastery-type/InvokerMasteryType'
 import Profile from './components/profile/Profile'
+import LeaderBoard from './components/leaderboard/LeaderBoard'
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 						element={<InvokerMasteryType />}
 					/>
 					<Route path='profile' element={<Profile />} />
+					<Route path='leaderboard' element={<LeaderBoard />} />
 				</Route>
 			</Routes>
 		</Router>

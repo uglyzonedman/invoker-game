@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import inkoverImg from '../../assets/invoker-dota-2.gif'
 import { Link } from 'react-router-dom'
