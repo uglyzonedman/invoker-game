@@ -15,6 +15,7 @@ import { useCreateResult } from '../../../../hooks/useResult'
 import { motion } from 'framer-motion'
 import WarningModal from '../../../ui/WarningModal'
 import { useCreateWarning } from '../../../../hooks/useWarning'
+import { useNavigate } from 'react-router-dom'
 
 const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [currentStep, setCurrentStep] = useState(0)
@@ -23,6 +24,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [keys, setKeys] = useState<any[]>([])
 	const [countKeys, setCountKeys] = useState<number>(0)
 	const [result, setResult] = useState(0)
+	const navigate = useNavigate()
 	const user = useUser()
 	const [incorrectKeyCount, setIncorrectKeyCount] = useState(0)
 	const { profile } = useProfile(user)
@@ -90,6 +92,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 			if (keypressCount >= MAX_KEYPRESSES_PER_SECOND) {
 				createWarningFunc()
 				setIsWarningOpen(true)
+				navigate('/')
 				setStartGame(false)
 				setKeypressCount(0)
 				return
