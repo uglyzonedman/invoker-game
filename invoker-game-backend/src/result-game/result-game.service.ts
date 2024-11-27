@@ -24,14 +24,9 @@ export class ResultGameService {
     console.log('Existing result game:', checkResultsGame);
 
     if (checkResultsGame) {
-      console.log('Existing result:', checkResultsGame.result);
-      console.log('New result:', dto.result);
-
       if (+checkResultsGame.result > +dto.result) {
         return await this.prisma.resultGame.update({
-          where: {
-            id: checkResultsGame.id,
-          },
+          where: { id: checkResultsGame.id },
           data: {
             result: dto.result,
             userId: id,
@@ -48,6 +43,8 @@ export class ResultGameService {
         },
       });
     }
+
+    return dto.result;
   }
 
   async getAllResults() {

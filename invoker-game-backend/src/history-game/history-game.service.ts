@@ -9,7 +9,7 @@ export class HistoryGameService {
     return await this.prisma.historyGame.create({
       data: {
         userId: id,
-        resultId: dto.resultId,
+        result: dto.result,
       },
     });
   }
@@ -17,9 +17,6 @@ export class HistoryGameService {
   async getAllHistoryGameByUser(id: number) {
     return await this.prisma.historyGame.findMany({
       where: { userId: id },
-      include: {
-        resultGame: true,
-      },
     });
   }
 }

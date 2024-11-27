@@ -1,3 +1,3 @@
 export class CreateHistoryGameDto {
-  resultId: number;
+  result: any;
 }

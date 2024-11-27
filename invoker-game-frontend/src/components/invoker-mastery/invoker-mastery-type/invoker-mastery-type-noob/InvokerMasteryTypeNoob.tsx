@@ -12,6 +12,7 @@ import { IInvokerSkill } from '../../../../types'
 import noob from '../../../../assets/noob.gif'
 import { useProfile, useUser } from '../../../../hooks/useUser'
 import { useCreateResult } from '../../../../hooks/useResult'
+import { motion } from 'framer-motion'
 
 const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [currentStep, setCurrentStep] = useState(0)
@@ -37,6 +38,12 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 
 	const shuffleArray = (array: any[]) => {
 		return array.sort(() => Math.random() - 0.5)
+	}
+
+	const skillVariants = {
+		hidden: { opacity: 0, scale: 0.8 },
+		visible: { opacity: 1, scale: 1 },
+		exit: { opacity: 0, scale: 0.8 },
 	}
 
 	const start = () => {
@@ -141,15 +148,15 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 			if (start === null) {
 				start = now
 			}
-			const elapsed = (now - start) / 1000 // Переводим в секунды
-			setCurrentTimer(elapsed.toFixed(1)) // Оставляем одну цифру после запятой
+			const elapsed = (now - start) / 1000
+			setCurrentTimer(elapsed.toFixed(1))
 			animationFrame = requestAnimationFrame(updateTimer)
 		}
 
 		if (startGame) {
 			animationFrame = requestAnimationFrame(updateTimer)
 		} else {
-			setCurrentTimer(0) // Сбрасываем таймер при завершении игры
+			setCurrentTimer(0)
 		}
 
 		return () => {
@@ -161,13 +168,14 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 
 	const ResultImage = React.memo(({ result }: { result: number }) => {
 		const getImage = () => {
-			if (result <= 6) return sisyan
-			if (result >= 7 && result <= 10) return titan
-			if (result >= 11 && result <= 13) return bomjestvo
-			if (result >= 14 && result <= 18) return vlastik
-			if (result >= 19 && result <= 30) return legend
-			if (result >= 31 && result <= 40) return hero
-			if (result >= 41 && result <= 50) return straj
+			if (Math.round(+result) <= 6) return sisyan
+			if (Math.round(+result) >= 7 && Math.round(+result) <= 10) return titan
+			if (Math.round(+result) >= 11 && Math.round(+result) <= 13)
+				return bomjestvo
+			if (Math.round(+result) >= 14 && Math.round(+result) <= 18) return vlastik
+			if (Math.round(+result) >= 19 && Math.round(+result) <= 30) return legend
+			if (Math.round(+result) >= 31 && Math.round(+result) <= 40) return hero
+			if (Math.round(+result) >= 41 && Math.round(+result) <= 50) return straj
 			return recrut
 		}
 
@@ -207,29 +215,39 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 				{startGame && (
 					<>
 						<div className='mt-6 mb-8'>
-							<img
+							<motion.img
+								key={randomArraySkills[currentStep]?.image} // Ensures unique animation per skill change
 								className='mx-auto rounded-lg shadow-lg border-4 border-purple-600'
 								src={randomArraySkills[currentStep]?.image}
 								alt='Skill'
+								initial='hidden'
+								animate='visible'
+								exit='exit'
+								variants={skillVariants}
+								transition={{ duration: 0.5, ease: 'easeInOut' }} // Customize timing
 							/>
 						</div>
 						<div className='flex justify-between max-w-[320px] mt-6 mx-auto gap-4'>
 							{Array.from({ length: 3 }).map((_, index) => (
-								<div
+								<motion.div
 									key={index}
 									className='rounded-full border-4 border-solid border-indigo-500 flex items-center justify-center text-white text-lg font-bold w-24 h-24 bg-gradient-to-r from-purple-600 to-indigo-700 shadow-lg transform transition-transform duration-300 hover:scale-110 hover:shadow-2xl'
+									initial={{ opacity: 0, scale: 0.8 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.8 }}
+									transition={{ duration: 0.5, ease: 'easeInOut' }}
 								>
 									{findPhotoSkill(index) == undefined ? (
 										''
 									) : (
-										<img
+										<motion.img
 											className='rounded-full w-[21] h-[21]'
 											src={`${
 												import.meta.env.VITE_BASE_URL
 											}/user/get-photo-skill/${findPhotoSkill(index)}`}
 										/>
 									)}
-								</div>
+								</motion.div>
 							))}
 						</div>
 					</>

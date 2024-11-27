@@ -1,9 +1,9 @@
 import axiosInstance from '../api'
 
 export const HistoryGameService = {
-	async createHistory(resultId: number) {
+	async createHistory(result: any) {
 		const res = await axiosInstance.post('history-game/create-history', {
-			resultId,
+			result,
 		})
 		return res.data
 	},

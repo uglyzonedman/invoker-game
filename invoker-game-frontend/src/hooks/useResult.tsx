@@ -17,8 +17,7 @@ export const useCreateResult = () => {
 		mutationFn: ({ result, gameMode }: { result: number; gameMode: any }) =>
 			ResultGameService.createResult({ gameMode, result }),
 		onSuccess: async res => {
-			console.log('res', res)
-			await HistoryGameService.createHistory(res.id)
+			await HistoryGameService.createHistory(res)
 		},
 	})
 

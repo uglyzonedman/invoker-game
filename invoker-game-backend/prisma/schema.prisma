@@ -42,26 +42,24 @@ model UserKeyboard {
 }
 
 model ResultGame {
-  id          Int           @id @default(autoincrement())
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @default(now()) @map("updated_at")
-  gameMode    game_mode     @default(easy) @map("game_mode")
-  result      String
-  userId      Int           @map("user_id")
-  user        User          @relation(fields: [userId], references: [id])
-  HistoryGame HistoryGame[]
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @map("updated_at")
+  gameMode  game_mode @default(easy) @map("game_mode")
+  result    String
+  userId    Int       @map("user_id")
+  user      User      @relation(fields: [userId], references: [id])
 
   @@map("result_game")
 }
 
 model HistoryGame {
-  id         Int        @id @default(autoincrement())
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @default(now()) @map("updated_at")
-  userId     Int        @map("user_id")
-  user       User       @relation(fields: [userId], references: [id])
-  resultId   Int        @map("result_id")
-  resultGame ResultGame @relation(fields: [resultId], references: [id])
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  result    Float?
 
   @@map("history_game")
 }
