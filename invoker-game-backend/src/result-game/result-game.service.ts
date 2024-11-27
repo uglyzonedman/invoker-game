@@ -51,13 +51,12 @@ export class ResultGameService {
   }
 
   async getAllResults() {
-    return await this.prisma.resultGame.findMany({
+    const results = await this.prisma.resultGame.findMany({
       include: {
         user: true,
       },
-      orderBy: {
-        result: 'desc',
-      },
     });
+
+    return results.sort((a, b) => Number(b.result) - Number(a.result));
   }
 }

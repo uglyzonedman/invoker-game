@@ -2,7 +2,7 @@ import { useGetAllResults } from '../../hooks/useResult'
 
 const LeaderBoard = () => {
 	const { getAll } = useGetAllResults()
-
+	console.log(getAll)
 	const getMedalClass = (index: number) => {
 		if (index === 0) return 'bg-yellow-500' // Gold
 		if (index === 1) return 'bg-gray-300' // Silver
