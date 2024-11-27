@@ -57,6 +57,6 @@ export class ResultGameService {
       },
     });
 
-    return results.sort((a, b) => Number(b.result) - Number(a.result));
+    return results.sort((a, b) => Number(a.result) - Number(b.result));
   }
 }
