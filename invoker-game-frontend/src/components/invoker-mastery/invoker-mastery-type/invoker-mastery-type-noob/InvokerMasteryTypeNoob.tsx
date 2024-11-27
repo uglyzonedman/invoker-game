@@ -15,7 +15,6 @@ import { useCreateResult } from '../../../../hooks/useResult'
 import { motion } from 'framer-motion'
 import WarningModal from '../../../ui/WarningModal'
 import { useCreateWarning } from '../../../../hooks/useWarning'
-import { useNavigate } from 'react-router-dom'
 
 const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [currentStep, setCurrentStep] = useState(0)
