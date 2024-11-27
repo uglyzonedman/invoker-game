@@ -27,14 +27,13 @@ const LeaderBoard = () => {
 									<span className='text-white font-semibold'>{index + 1}</span>
 								</div>
 								<img
-									width={40}
-									height={40}
-									className='rounded-full'
+									className='w-10 h-10 rounded-full object-cover'
 									src={`${import.meta.env.VITE_BASE_URL}/user/get-avatar/${
 										item?.user?.avatarPath
 									}`}
 									alt={item?.user?.login}
 								/>
+
 								<h3 className='text-white font-semibold'>
 									{item?.user?.login}
 								</h3>

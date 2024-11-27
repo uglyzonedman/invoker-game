@@ -50,9 +50,7 @@ const LayoutHeader = () => {
 								{user && profile ? (
 									<div className='flex items-center'>
 										<img
-											width={32}
-											height={32}
-											className='rounded-full'
+											className='w-10 h-10 rounded-full object-cover'
 											src={`${import.meta.env.VITE_BASE_URL}/user/get-avatar/${
 												profile?.avatarPath
 											}`}
