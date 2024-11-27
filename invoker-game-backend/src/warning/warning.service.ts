@@ -28,21 +28,22 @@ export class WarningService {
       },
     });
 
-    if (findWarningByUser.length == 2) {
-      return await this.prisma.user.update({
-        where: {
-          id: currentUser.id,
-        },
-        data: {
-          vacBan: true,
-        },
-      });
-    } else {
-      return await this.prisma.warning.create({
-        data: {
-          userId: currentUser.id,
-        },
-      });
-    }
+    // if (findWarningByUser.length == 2) {
+    //   return await this.prisma.user.update({
+    //     where: {
+    //       id: currentUser.id,
+    //     },
+    //     data: {
+    //       vacBan: true,
+    //     },
+    //   });
+    // } else {
+
+    return await this.prisma.warning.create({
+      data: {
+        userId: currentUser.id,
+      },
+    });
+    // }
   }
 }
