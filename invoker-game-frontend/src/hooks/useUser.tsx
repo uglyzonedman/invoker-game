@@ -7,16 +7,21 @@ export const useUser = () => {
 	return user
 }
 
-export const useProfile = () => {
-	const { data: profile, isLoading: isLoadingProfile } = useQuery({
+export const useProfile = (user: any) => {
+	const {
+		data: profile,
+		isLoading: isLoadingProfile,
+		refetch: refetchProfile,
+	} = useQuery({
 		queryKey: ['get-profile-by-id'],
 		queryFn: () => UserService.getProfile(),
+		enabled: !!user,
 	})
 
-	return { profile, isLoadingProfile }
+	return { profile, isLoadingProfile, refetchProfile }
 }
 
-export const useUpdateProfile = () => {
+export const useUpdateProfile = (refetchProfile: any) => {
 	const { mutate: updateProfileFunc } = useMutation({
 		mutationKey: ['update-profile'],
 		mutationFn: ({
@@ -26,6 +31,7 @@ export const useUpdateProfile = () => {
 			avatarPath: string
 			login: string
 		}) => UserService.updateProfile({ avatarPath, login }),
+		onSuccess: () => refetchProfile(),
 	})
 	return { updateProfileFunc }
 }

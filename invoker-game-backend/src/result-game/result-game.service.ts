@@ -28,7 +28,7 @@ export class ResultGameService {
       console.log('New result:', dto.result);
 
       if (+checkResultsGame.result > +dto.result) {
-        await this.prisma.resultGame.update({
+        return await this.prisma.resultGame.update({
           where: {
             id: checkResultsGame.id,
           },
@@ -38,17 +38,15 @@ export class ResultGameService {
             gameMode: dto.gameMode,
           },
         });
-        console.log('Updated result game');
       }
     } else {
-      await this.prisma.resultGame.create({
+      return await this.prisma.resultGame.create({
         data: {
           result: dto.result,
           userId: id,
           gameMode: dto.gameMode,
         },
       });
-      console.log('Created new result game');
     }
   }
 
@@ -56,6 +54,9 @@ export class ResultGameService {
     return await this.prisma.resultGame.findMany({
       include: {
         user: true,
+      },
+      orderBy: {
+        result: 'desc',
       },
     });
   }

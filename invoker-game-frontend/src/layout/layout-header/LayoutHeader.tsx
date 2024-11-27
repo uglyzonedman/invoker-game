@@ -4,7 +4,7 @@ import { useProfile, useUser } from '../../hooks/useUser'
 
 const LayoutHeader = () => {
 	const user = useUser()
-	const { profile } = useProfile()
+	const { profile } = useProfile(user)
 
 	return (
 		<header className='bg-gray-900 shadow-lg py-4'>
@@ -47,7 +47,7 @@ const LayoutHeader = () => {
 								</Link>
 							</li>
 							<li className='ml-8 flex items-center'>
-								{user ? (
+								{user && profile ? (
 									<div className='flex items-center'>
 										<img
 											width={32}

@@ -10,7 +10,7 @@ import vlastik from './../../../../assets/vlastik.png'
 import { invokerSkills } from '../../../../consts/invoker-skills'
 import { IInvokerSkill } from '../../../../types'
 import noob from '../../../../assets/noob.gif'
-import { useProfile } from '../../../../hooks/useUser'
+import { useProfile, useUser } from '../../../../hooks/useUser'
 import { useCreateResult } from '../../../../hooks/useResult'
 
 const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
@@ -20,8 +20,9 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [keys, setKeys] = useState<any[]>([])
 	const [countKeys, setCountKeys] = useState<number>(0)
 	const [result, setResult] = useState(0)
+	const user = useUser()
 	const [incorrectKeyCount, setIncorrectKeyCount] = useState(0)
-	const { profile } = useProfile()
+	const { profile } = useProfile(user)
 	const { createResultFunc } = useCreateResult()
 	const findPhotoSkill = (index: number) => {
 		return profile?.UserKeyboard.find(
@@ -208,7 +209,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 						<div className='mt-6 mb-8'>
 							<img
 								className='mx-auto rounded-lg shadow-lg border-4 border-purple-600'
-								src={randomArraySkills[currentStep].image}
+								src={randomArraySkills[currentStep]?.image}
 								alt='Skill'
 							/>
 						</div>
@@ -267,27 +268,27 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 					Способности
 				</h2>
 				<div className='flex flex-wrap gap-4'>
-					{invokerSkills.map(skill => (
+					{invokerSkills?.map(skill => (
 						<div
 							className='flex items-center bg-gray-900 p-2 rounded-lg shadow-md'
-							key={skill.name}
+							key={skill?.name}
 						>
 							<img
-								src={skill.image}
-								alt={skill.name}
+								src={skill?.image}
+								alt={skill?.name}
 								width={32}
 								height={32}
 								className='rounded-full'
 							/>
-							<p className='font-bold text-white ml-2'>{skill.name}</p>
+							<p className='font-bold text-white ml-2'>{skill?.name}</p>
 							<div className='flex ml-4'>
-								{skill.keys.map(key => (
+								{skill?.keys?.map((key, index) => (
 									<span
 										style={{ color: findKeyColor(key) }}
 										className='text-base font-bold mx-1'
-										key={key}
+										key={`${key}-${index}`}
 									>
-										{key[0].toUpperCase()}
+										{key[0]?.toUpperCase()}
 									</span>
 								))}
 							</div>

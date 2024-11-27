@@ -1,5 +1,10 @@
 import { useState } from 'react'
-import { useUpdateAvatar, useUpdateProfile } from '../../hooks/useUser'
+import {
+	useProfile,
+	useUpdateAvatar,
+	useUpdateProfile,
+	useUser,
+} from '../../hooks/useUser'
 
 const EditProfileModal = ({
 	profile,
@@ -10,7 +15,9 @@ const EditProfileModal = ({
 }) => {
 	const [login, setLogin] = useState(profile.login)
 	const [avatarPath, setAvatarPath] = useState('')
-	const { updateProfileFunc } = useUpdateProfile()
+	const user = useUser()
+	const { refetchProfile } = useProfile(user)
+	const { updateProfileFunc } = useUpdateProfile(refetchProfile)
 	const { updateAvatarFunc } = useUpdateAvatar()
 
 	const handleAvatarChange = async (e: any) => {
@@ -26,6 +33,7 @@ const EditProfileModal = ({
 	const handleSubmit = async (e: any) => {
 		e.preventDefault()
 		updateProfileFunc({ avatarPath, login })
+
 		onClose()
 	}
 

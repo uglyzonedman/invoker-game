@@ -1,8 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { AuthDto } from './auth.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { verify as verifyjwt } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +23,7 @@ export class AuthService {
       login,
     };
     return this.jwtService.sign(data, {
-      expiresIn: '7d',
+      expiresIn: '1h',
       secret: 'misha-krasava-oscar-chyrka',
     });
   }
@@ -162,6 +167,26 @@ export class AuthService {
         accessToken,
         refreshToken,
       },
+    };
+  }
+  async updateRefreshToken(refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Ваш токен утратил жизнь');
+    }
+    const payload: any = verifyjwt(refreshToken, '24242fdfsvcxvds_zsd');
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: payload.id,
+      },
+    });
+    if (!user) {
+      throw new BadRequestException('Такого пользователя нет');
+    }
+    const newAccessToken = this.generateAccessToken(user.id, user.login);
+    const newRefreshToken = this.generateRefreshToken(user.id, user.login);
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     };
   }
 }

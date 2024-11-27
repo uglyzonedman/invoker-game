@@ -6,7 +6,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api-v1');
 
   const allowedOrigins = [
-    'http://localhost:5173',
+    'http://localhost:4173',
     'https://invoker-mastery.vercel.app',
     'http://85.159.231.74:4174',
   ];

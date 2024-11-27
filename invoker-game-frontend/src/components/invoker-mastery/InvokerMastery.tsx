@@ -2,10 +2,11 @@ import hight from '../../assets/high.gif'
 import medium from '../../assets/medium.gif'
 import easy from '../../assets/easy.gif'
 import { Link } from 'react-router-dom'
-import { useProfile } from '../../hooks/useUser'
+import { useProfile, useUser } from '../../hooks/useUser'
 
 const InvokerMastery = () => {
-	const { profile } = useProfile()
+	const user = useUser()
+	const { profile } = useProfile(user)
 
 	const levels = [
 		{

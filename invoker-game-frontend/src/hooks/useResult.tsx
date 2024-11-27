@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ResultGameService } from '../services/result-game.service'
+import { HistoryGameService } from '../services/history-game.service'
 
 export const useGetAllResults = () => {
 	const { data: getAll } = useQuery({
@@ -15,6 +16,10 @@ export const useCreateResult = () => {
 		mutationKey: ['create-result'],
 		mutationFn: ({ result, gameMode }: { result: number; gameMode: any }) =>
 			ResultGameService.createResult({ gameMode, result }),
+		onSuccess: async res => {
+			console.log('res', res)
+			await HistoryGameService.createHistory(res.id)
+		},
 	})
 
 	return { createResultFunc }
