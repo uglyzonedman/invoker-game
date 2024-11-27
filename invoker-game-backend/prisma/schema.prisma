@@ -20,11 +20,23 @@ model User {
   login        String         @unique
   password     String
   avatarPath   String?        @default("not_photo.webp")
+  vacBan       Boolean        @default(false) @map("vac_ban")
   UserKeyboard UserKeyboard[]
   ResultGame   ResultGame[]
   HistoryGame  HistoryGame[]
+  Warning      Warning[]
 
   @@map("user")
+}
+
+model Warning {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("warning")
 }
 
 model UserKeyboard {

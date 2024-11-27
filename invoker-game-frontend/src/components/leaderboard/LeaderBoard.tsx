@@ -41,6 +41,14 @@ const LeaderBoard = () => {
 							<div className='text-white text-lg font-bold'>
 								{item?.result} с
 							</div>
+							{/* VAC badge */}
+							{item.user.vacBan && (
+								<div className='relative flex items-center'>
+									<span className='text-red-500 font-bold text-base uppercase tracking-wider vac-badge font-bold border-red-600 border-[1px] border-solid px-3 py-2'>
+										VAC
+									</span>
+								</div>
+							)}
 						</div>
 					))}
 				</div>

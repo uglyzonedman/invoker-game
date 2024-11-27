@@ -13,6 +13,8 @@ import noob from '../../../../assets/noob.gif'
 import { useProfile, useUser } from '../../../../hooks/useUser'
 import { useCreateResult } from '../../../../hooks/useResult'
 import { motion } from 'framer-motion'
+import WarningModal from '../../../ui/WarningModal'
+import { useCreateWarning } from '../../../../hooks/useWarning'
 
 const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [currentStep, setCurrentStep] = useState(0)
@@ -30,12 +32,15 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 			(item: any) => item.skill == keys[index]?.skill
 		)?.photo
 	}
+	const [keypressCount, setKeypressCount] = useState(0) // Счетчик нажатий
+	const MAX_KEYPRESSES_PER_SECOND = 7 // Лимит нажатий в секунду
+	const [isWarningOpen, setIsWarningOpen] = useState(false)
 
 	const arraySkills = [...invokerSkills]
 	const [randomArraySkills, setRandomArraySkills] = useState<IInvokerSkill[]>(
 		[]
 	)
-
+	const { createWarningFunc } = useCreateWarning()
 	const shuffleArray = (array: any[]) => {
 		return array.sort(() => Math.random() - 0.5)
 	}
@@ -75,8 +80,20 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent): void => {
+			if (!startGame) return // Считываем клавиши только во время игры
+
 			event.preventDefault()
 			const pressedKey = event.key.toLowerCase()
+
+			setKeypressCount(prev => prev + 1)
+
+			if (keypressCount >= MAX_KEYPRESSES_PER_SECOND) {
+				createWarningFunc()
+				setIsWarningOpen(true)
+				setStartGame(false)
+				setKeypressCount(0)
+				return
+			}
 
 			const keyExists = profile?.UserKeyboard.some(
 				(item: { key: string; skill: string }) => item.key === pressedKey
@@ -93,6 +110,8 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 					console.log(`Key pressed: ${currentKey.skill}`)
 					setKeys(prev => [...prev, currentKey])
 				}
+			} else {
+				setIncorrectKeyCount(prev => prev + 1)
 			}
 		}
 
@@ -101,7 +120,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown)
 		}
-	}, [profile, setCountKeys, setKeys])
+	}, [startGame, profile, keypressCount, setCountKeys, setKeys])
 
 	useEffect(() => {
 		const expectedKeys = randomArraySkills[currentStep]?.keys
@@ -139,6 +158,21 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 		}
 	}, [keys, currentStep, randomArraySkills])
 
+	useEffect(() => {
+		let interval: any | null = null
+
+		if (startGame) {
+			interval = setInterval(() => {
+				setKeypressCount(0) // Сбрасываем счетчик каждую секунду
+			}, 1000)
+		}
+
+		return () => {
+			if (interval) {
+				clearInterval(interval)
+			}
+		}
+	}, [startGame])
 	useEffect(() => {
 		let start: number | null = null
 		let animationFrame: number | null = null
@@ -211,7 +245,11 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 						</div>
 					</>
 				)}
-
+				<WarningModal
+					isOpen={isWarningOpen}
+					onClose={() => setIsWarningOpen(false)}
+					message='Too many key presses per second! The game has been stopped.'
+				/>
 				{startGame && (
 					<>
 						<div className='mt-6 mb-8'>

@@ -35,24 +35,55 @@ const InvokerMastery = () => {
 		},
 	]
 
-	// Filter the levels to show only the unlocked ones, and limit to the first available one
 	const availableLevels = levels.filter(level => level.isUnlocked)
 
-	// If profile is false, show no level
 	if (!profile) {
 		return (
-			<div className='text-center text-white'>
-				Доступ закрыт. Пожалуйста, авторизуйтесь.
+			<div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
+				<div className='bg-gray-800 text-white p-6 rounded-lg shadow-lg max-w-md text-center'>
+					<h2 className='text-2xl font-bold mb-4'>Доступ закрыт</h2>
+					<p className='mb-6'>
+						Пожалуйста, авторизуйтесь, чтобы получить доступ к этому ресурсу.
+					</p>
+					<button
+						className='bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg focus:outline-none transition'
+						onClick={() => alert('Перенаправление на страницу авторизации')}
+					>
+						Авторизоваться
+					</button>
+				</div>
 			</div>
 		)
 	}
 
-	// If there is no unlocked level, show a message
+	if (profile.vacBan) {
+		return (
+			<div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
+				<div className='bg-gray-800 text-white p-6 rounded-lg shadow-lg max-w-md text-center'>
+					<h2 className='text-2xl font-bold mb-4'>Доступ закрыт</h2>
+					<p className='mb-6'>
+						Вы получили{' '}
+						<span className='text-red-500 font-semibold'>VAC Ban</span>. Доступ
+						к этому ресурсу недоступен.
+					</p>
+					<button
+						className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg focus:outline-none transition'
+						onClick={() =>
+							(window.location.href =
+								'https://www.youtube.com/watch?v=yAgsZqci9Vo')
+						}
+					>
+						Понятно
+					</button>
+				</div>
+			</div>
+		)
+	}
+
 	if (availableLevels.length === 0) {
 		return <div className='text-center text-white'>Нет доступных уровней.</div>
 	}
 
-	// Only show one available level
 	const level = availableLevels[0]
 
 	return (
