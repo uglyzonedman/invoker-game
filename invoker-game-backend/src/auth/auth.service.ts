@@ -23,7 +23,7 @@ export class AuthService {
       login,
     };
     return this.jwtService.sign(data, {
-      expiresIn: '1h',
+      expiresIn: '1m',
       secret: 'misha-krasava-oscar-chyrka',
     });
   }
@@ -173,7 +173,7 @@ export class AuthService {
     if (!refreshToken) {
       throw new UnauthorizedException('Ваш токен утратил жизнь');
     }
-    const payload: any = verifyjwt(refreshToken, '24242fdfsvcxvds_zsd');
+    const payload: any = verifyjwt(refreshToken, 'misha-krasava-oscar-chyrka');
     const user = await this.prisma.user.findUnique({
       where: {
         id: payload.id,

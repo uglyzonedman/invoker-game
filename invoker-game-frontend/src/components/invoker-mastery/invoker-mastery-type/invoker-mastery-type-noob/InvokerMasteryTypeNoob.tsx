@@ -13,6 +13,8 @@ import noob from '../../../../assets/noob.gif'
 import { useProfile, useUser } from '../../../../hooks/useUser'
 import { useCreateResult } from '../../../../hooks/useResult'
 import { motion } from 'framer-motion'
+import WarningModal from '../../../ui/WarningModal'
+import { useNavigate } from 'react-router-dom'
 
 const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [currentStep, setCurrentStep] = useState(0)
@@ -25,17 +27,23 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const [incorrectKeyCount, setIncorrectKeyCount] = useState(0)
 	const { profile } = useProfile(user)
 	const { createResultFunc } = useCreateResult()
+	const [warning, setWarning] = useState(false)
+	const [, setMessageWarning] = useState('')
+	const [countWarning, setCountWarning] = useState(0)
+	const [keyPressTimes, setKeyPressTimes] = useState<any>([])
+	const [isOpenModalWarning, setIsOpenModalWarning] = useState(false)
+	const navigate = useNavigate()
 	const findPhotoSkill = (index: number) => {
 		return profile?.UserKeyboard.find(
 			(item: any) => item.skill == keys[index]?.skill
 		)?.photo
 	}
+	let MAX_KEYPRESSES_PER_SECOND = 3
 
 	const arraySkills = [...invokerSkills]
 	const [randomArraySkills, setRandomArraySkills] = useState<IInvokerSkill[]>(
 		[]
 	)
-
 	const shuffleArray = (array: any[]) => {
 		return array.sort(() => Math.random() - 0.5)
 	}
@@ -56,6 +64,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 			setCurrentTimer(0)
 			setIncorrectKeyCount(0)
 			setCountKeys(0)
+			setKeyPressTimes([]) // Clear previous key press records
 		}
 	}
 
@@ -74,9 +83,75 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	}, [startGame])
 
 	useEffect(() => {
+		let interval: any | null = null
+
+		if (startGame) {
+			interval = setInterval(() => {
+				setKeyPressTimes([]) // Reset key press times every second
+			}, 1000)
+		}
+
+		return () => {
+			if (interval) {
+				clearInterval(interval)
+			}
+		}
+	}, [startGame])
+	const [timerPaused, setTimerPaused] = useState(false) // Track if the timer is paused
+	const [timerPausedNumber, setTimerPausedNumber] = useState(0)
+
+	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent): void => {
+			if (isOpenModalWarning) {
+				return // Prevent input if the warning modal is open
+			}
+
 			event.preventDefault()
+
+			if (!event.isTrusted) {
+				setIsOpenModalWarning(true)
+				setWarning(true)
+				setCurrentTimer(0)
+				setIncorrectKeyCount(0)
+				setCountKeys(0)
+				setKeyPressTimes([])
+				setTimerPausedNumber(0)
+				setStartGame(false)
+				return
+			}
+
 			const pressedKey = event.key.toLowerCase()
+
+			setKeyPressTimes((prev: any) => [...prev, performance.now()])
+
+			const currentTime = performance.now()
+			const oneSecondAgo = currentTime - 1000
+			const keyPressesInLastSecond = keyPressTimes.filter(
+				(time: any) => time > oneSecondAgo
+			)
+
+			if (keyPressesInLastSecond.length > MAX_KEYPRESSES_PER_SECOND) {
+				setCountWarning(prevCountWarning => {
+					const newCountWarning = prevCountWarning + 1
+
+					if (newCountWarning <= 2) {
+						setIsOpenModalWarning(true)
+						setTimerPaused(true)
+						setTimerPausedNumber(currentTimer)
+					} else if (newCountWarning === 3) {
+						setTimerPaused(true)
+						setIsOpenModalWarning(true)
+						setWarning(true)
+						setCurrentTimer(0)
+						setIncorrectKeyCount(0)
+						setCountKeys(0)
+						setKeyPressTimes([])
+						setTimerPausedNumber(0)
+					}
+
+					return newCountWarning
+				})
+			}
 
 			const keyExists = profile?.UserKeyboard.some(
 				(item: { key: string; skill: string }) => item.key === pressedKey
@@ -101,8 +176,15 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown)
 		}
-	}, [profile, setCountKeys, setKeys])
-
+	}, [
+		profile,
+		setCountKeys,
+		setKeys,
+		countWarning,
+		keyPressTimes,
+		isOpenModalWarning,
+	])
+	console.log('set', currentTimer)
 	useEffect(() => {
 		const expectedKeys = randomArraySkills[currentStep]?.keys
 
@@ -118,7 +200,11 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 				setResult(parseFloat(Number(computedResult).toFixed(2)))
 
 				if (currentStep === randomArraySkills.length - 1) {
-					createResultFunc({ gameMode: 'easy', result: computedResult })
+					createResultFunc({
+						gameMode: 'easy',
+						result: String(computedResult),
+						warning,
+					})
 				}
 				setTimeout(() => {
 					if (currentStep < randomArraySkills?.length - 1) {
@@ -140,31 +226,31 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	}, [keys, currentStep, randomArraySkills])
 
 	useEffect(() => {
-		let start: number | null = null
 		let animationFrame: number | null = null
 
-		const updateTimer = () => {
-			const now = performance.now()
-			if (start === null) {
-				start = now
+		if (startGame && !timerPaused) {
+			const start = performance.now() - (timerPausedNumber || 0) * 1000 // начнем отсчет от текущего времени
+			const updateTimer = () => {
+				const now = performance.now()
+				const elapsed = (now - start) / 1000
+				setCurrentTimer(elapsed.toFixed(1)) // обновляем таймер
+				animationFrame = requestAnimationFrame(updateTimer)
 			}
-			const elapsed = (now - start) / 1000
-			setCurrentTimer(elapsed.toFixed(1))
-			animationFrame = requestAnimationFrame(updateTimer)
-		}
 
-		if (startGame) {
 			animationFrame = requestAnimationFrame(updateTimer)
+		} else if (startGame && timerPaused) {
+			setCurrentTimer(timerPausedNumber)
 		} else {
 			setCurrentTimer(0)
+			setTimerPausedNumber(0)
 		}
 
 		return () => {
 			if (animationFrame) {
-				cancelAnimationFrame(animationFrame)
+				cancelAnimationFrame(animationFrame) // очищаем анимацию
 			}
 		}
-	}, [startGame])
+	}, [startGame, timerPaused, timerPausedNumber])
 
 	const ResultImage = React.memo(({ result }: { result: number }) => {
 		const getImage = () => {
@@ -182,9 +268,21 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 		return <img className='mx-auto' src={getImage()} alt='Result' />
 	})
 
-	const findKeyColor = (key: string) => {
-		return profile?.UserKeyboard?.find((item: any) => item.skill === key)
-			?.textColor
+	const findKeyColor = (key: any) => {
+		switch (key?.skill) {
+			case 'q':
+				return '#ff8000'
+			case 'w':
+				return '#ff4d00'
+			case 'e':
+				return '#ff1a00'
+			case 'r':
+				return '#ff0000'
+			case 'd':
+				return '#00cc00'
+			default:
+				return '#ff3333'
+		}
 	}
 
 	return (
@@ -216,7 +314,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 					<>
 						<div className='mt-6 mb-8'>
 							<motion.img
-								key={randomArraySkills[currentStep]?.image} // Ensures unique animation per skill change
+								key={randomArraySkills[currentStep]?.image}
 								className='mx-auto rounded-lg shadow-lg border-4 border-purple-600'
 								src={randomArraySkills[currentStep]?.image}
 								alt='Skill'
@@ -224,7 +322,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 								animate='visible'
 								exit='exit'
 								variants={skillVariants}
-								transition={{ duration: 0.5, ease: 'easeInOut' }} // Customize timing
+								transition={{ duration: 0.5, ease: 'easeInOut' }}
 							/>
 						</div>
 						<div className='flex justify-between max-w-[320px] mt-6 mx-auto gap-4'>
@@ -281,6 +379,28 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 					</div>
 				</div>
 			</div>
+			{warning && isOpenModalWarning && (
+				<WarningModal
+					isOpen={true}
+					message='Вы превысили допустимое количество нажатий! Игра завершена.'
+					onClose={() => {
+						setIsOpenModalWarning(false)
+						setStartGame(false)
+						navigate('/')
+					}}
+				/>
+			)}
+			{countWarning > 0 && countWarning < 3 && isOpenModalWarning && (
+				<WarningModal
+					isOpen={true}
+					message={`Замечена подозрительная активность. Предупреждение: ${countWarning} из 3!`}
+					onClose={() => {
+						setTimerPaused(false)
+						setIsOpenModalWarning(false)
+					}}
+				/>
+			)}
+
 			<div className='max-w-[780px] w-full mx-auto p-6 bg-gray-800 rounded-lg shadow-xl mt-5'>
 				<h2 className='text-lg font-bold text-white text-center mb-3'>
 					Способности

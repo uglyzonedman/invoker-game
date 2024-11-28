@@ -11,6 +11,6 @@ async function bootstrap() {
     'http://85.159.231.74:4174',
   ];
   app.enableCors({ origin: allowedOrigins });
-  await app.listen(7777);
+  await app.listen(7776);
 }
 bootstrap();

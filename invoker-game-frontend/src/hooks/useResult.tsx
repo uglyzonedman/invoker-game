@@ -14,8 +14,15 @@ export const useGetAllResults = () => {
 export const useCreateResult = () => {
 	const { mutate: createResultFunc } = useMutation({
 		mutationKey: ['create-result'],
-		mutationFn: ({ result, gameMode }: { result: number; gameMode: any }) =>
-			ResultGameService.createResult({ gameMode, result }),
+		mutationFn: ({
+			result,
+			gameMode,
+			warning,
+		}: {
+			result: any
+			gameMode: any
+			warning: boolean
+		}) => ResultGameService.createResult({ gameMode, result, warning }),
 		onSuccess: async res => {
 			await HistoryGameService.createHistory(res)
 		},

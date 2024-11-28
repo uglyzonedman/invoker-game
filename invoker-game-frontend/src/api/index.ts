@@ -27,9 +27,12 @@ axiosInstance.interceptors.response.use(
 		const refreshToken = Cookies.get('refreshToken')
 		if (error.response.status == 401) {
 			try {
-				const response = await axios.post(`${URL}/auth/login/refresh-token`, {
-					refreshToken,
-				})
+				const response = await axios.post(
+					`${import.meta.env.VITE_BASE_URL}/auth/login/refresh-token`,
+					{
+						refreshToken,
+					}
+				)
 				Cookies.set('accessToken', response.data.accessToken, {
 					expires: 1 / (24 * 60),
 					path: '/',
@@ -46,18 +49,5 @@ axiosInstance.interceptors.response.use(
 		}
 	}
 )
-
-// axiosInstance.interceptors.response.use(
-// 	response => {
-// 		return response
-// 	},
-// 	error => {
-// 		if (error.response?.status === 401) {
-// 			console.error('Unauthorized! Redirecting to login...')
-// 			window.location.href = '/login'
-// 		}
-// 		return Promise.reject(error)
-// 	}
-// )
 
 export default axiosInstance

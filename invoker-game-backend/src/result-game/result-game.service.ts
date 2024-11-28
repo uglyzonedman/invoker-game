@@ -31,6 +31,7 @@ export class ResultGameService {
             result: dto.result,
             userId: id,
             gameMode: dto.gameMode,
+            warning: dto.warning,
           },
         });
       }
@@ -40,6 +41,7 @@ export class ResultGameService {
           result: dto.result,
           userId: id,
           gameMode: dto.gameMode,
+          warning: dto.warning,
         },
       });
     }

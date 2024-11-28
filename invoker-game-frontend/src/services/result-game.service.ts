@@ -6,10 +6,19 @@ export const ResultGameService = {
 		return res.data
 	},
 
-	async createResult({ result, gameMode }: { result: number; gameMode: any }) {
+	async createResult({
+		result,
+		gameMode,
+		warning,
+	}: {
+		result: number
+		gameMode: any
+		warning: boolean
+	}) {
 		const res = await axiosInstance.post('result-game/create-result', {
 			gameMode,
 			result,
+			warning,
 		})
 		return res.data
 	},
