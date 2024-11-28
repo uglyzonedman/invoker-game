@@ -28,7 +28,6 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 	const { profile } = useProfile(user)
 	const { createResultFunc } = useCreateResult()
 	const [warning, setWarning] = useState(false)
-	const [, setMessageWarning] = useState('')
 	const [countWarning, setCountWarning] = useState(0)
 	const [keyPressTimes, setKeyPressTimes] = useState<any>([])
 	const [isOpenModalWarning, setIsOpenModalWarning] = useState(false)
