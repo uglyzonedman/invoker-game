@@ -43,6 +43,7 @@ axiosInstance.interceptors.response.use(
 				})
 				return axiosInstance.request(originalRequest)
 			} catch (error) {
+				localStorage.removeItem('user')
 				Cookies.remove('accessToken')
 				Cookies.remove('refreshToken')
 			}
