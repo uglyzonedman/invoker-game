@@ -37,7 +37,7 @@ const InvokerMasteryTypeNoob = ({ type }: { type: 'easy' }) => {
 			(item: any) => item.skill == keys[index]?.skill
 		)?.photo
 	}
-	let MAX_KEYPRESSES_PER_SECOND = 3
+	let MAX_KEYPRESSES_PER_SECOND = 15
 
 	const arraySkills = [...invokerSkills]
 	const [randomArraySkills, setRandomArraySkills] = useState<IInvokerSkill[]>(
